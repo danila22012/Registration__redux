@@ -85,7 +85,15 @@
     outline: none;
 }
 
-
+.Quote-container{
+    margin: auto;
+    margin-top: 15px;
+    width: 100%;
+}
+.Quote-container p{
+    font-size: 20px;
+    padding: 0 10px;
+}
 
 
 ///////TRANSITION
@@ -115,6 +123,7 @@ transition: transform 300ms;
     transition: opacity 300ms, transform 300ms;
 }
   
+
 .form-exit {
     opacity: 1;
     transform: scale(1);

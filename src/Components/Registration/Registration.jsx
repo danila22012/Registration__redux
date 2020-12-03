@@ -13,8 +13,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 
-import { addUser, loadJoke } from './action';
-
+import { addUser, loadJoke, handleFormChange } from '../../Action/action';
 
 
 const UserState = {
@@ -34,6 +33,7 @@ const UserState = {
 class Registration extends Component {
 
     state = { ...UserState };
+
     componentDidMount() {
         this.props.loadJoke();
         console.log(this.props);
@@ -44,7 +44,7 @@ class Registration extends Component {
         const target = e.target;
         const value = target.type === "checkbox" ? target.checked : target.value;
         const name = target.name;
-        this.setState({
+        this.props.handleFormChange({
             [name]: value,
         });
         console.log(this.state);
@@ -52,11 +52,23 @@ class Registration extends Component {
     };
     handleSubmit = () => {
 
+        this.props.addUser(this.props.userData) //сетим в ридакс
 
 
-        this.props.addUser(this.state) //сетим в ридакс
+        this.props.handleFormChange({ // скидываем значения
+            key: 0,
+            userName: "",
+            userGender: "",
+            userCreditCard: "",
+            withLoyaltyProgram: false,
+            userCoupon: "",
+            timeStamp: new Date(),
 
-        this.setState(UserState);
+            formToSend: true,
+            timeToSend: 300,
+        })
+
+
 
         this.setState({ formToSend: false }) //переключаю стейт для анимации формы
         setTimeout(() => {
@@ -67,20 +79,20 @@ class Registration extends Component {
 
     };
     changeSwitch = () => {
-        if (this.state.withLoyaltyProgram) this.setState({ withLoyaltyProgram: false })
-        else this.setState({ withLoyaltyProgram: true })
+        if (this.props.userData.withLoyaltyProgram) this.props.handleFormChange({ withLoyaltyProgram: false })
+        else this.props.handleFormChange({ withLoyaltyProgram: true })
     }
     validateSubmit = () => {
 
-        if (this.state.userName.length === 0) {
+        if (this.props.userData.userName.length === 0) {
             alert('UserName should be written')
             return
         }
-        if (this.state.userGender === "") {
+        if (this.props.userData.userGender === "") {
             alert('Putting down a gender is necessarily')
             return
         }
-        if ([...this.state.userCreditCard].filter(el => el !== " " && el !== "_" ? true : false).length < 16) {
+        if ([...this.props.userData.userCreditCard].filter(el => el !== " " && el !== "_" ? true : false).length < 16) {
             alert('Error, put down a user card is necessarily')
             return
         }
@@ -144,7 +156,7 @@ class Registration extends Component {
 
                                 type="text"
                                 className="Registration-Form__Input"
-                                value={this.state.userName}
+                                value={this.props.userData.userName}
                                 name="userName"
                                 onChange={this.handleChange}
                                 onBlur={this.validateInput} />
@@ -158,7 +170,7 @@ class Registration extends Component {
                                     className={'Select-form__Select'}
                                     onChange={this.handleChange}
                                     onBlur={this.validateInput}
-                                    value={this.state.userGender}
+                                    value={this.props.userData.userGender}
                                     name="userGender">
                                     <MenuItem value="0">
                                         <em>None</em>
@@ -176,7 +188,7 @@ class Registration extends Component {
                                 mask="9999 9999 9999 9999"
                                 className="Registration-Form__Input"
                                 type="text"
-                                value={this.state.userCreditCard}
+                                value={this.props.userData.userCreditCard}
                                 name="userCreditCard"
 
                                 onChange={this.handleChange}
@@ -191,14 +203,14 @@ class Registration extends Component {
                                     color="secondary"
                                     labelplacement="start"
                                     onChange={this.changeSwitch}
-                                    value={this.state.userCoupon}
+                                    value={this.props.userData.userCoupon}
                                 />}
 
                             />
                         </FormGroup>
 
                         <CSSTransition
-                            in={this.state.withLoyaltyProgram}
+                            in={this.props.userData.withLoyaltyProgram}
                             timeout={300}
                             mountOnEnter={true}
                             classNames='coupon'
@@ -209,7 +221,7 @@ class Registration extends Component {
                                 <input
                                     className="Registration-Form__Input"
                                     type="text"
-                                    value={this.state.userCoupon}
+                                    value={this.props.userData.userCoupon}
                                     name="userCoupon"
                                     onClick={() => {
 
@@ -229,8 +241,8 @@ class Registration extends Component {
                     {/* проверка на валидность цитати */}
                     {this.props.jokeStatus ? <div className="Registration-Form Quote-container" display="none">
                         <p>{this.props.joke}</p>
-                    </div> : null} 
-                   
+                    </div> : null}
+
 
                 </div>
             </CSSTransition>
@@ -239,17 +251,20 @@ class Registration extends Component {
 }
 
 const mapStateToProps = (state) => {
-    
+
     return {
         joke: state.jokeReducer.value,
-        jokeStatus: state.jokeReducer.status
+        jokeStatus: state.jokeReducer.status,
+        userData: state.addUserReducer
     }
 }
 const mapDispatchToProps = (dispatch) => {
 
     return {
         loadJoke: () => dispatch(loadJoke()),
-        addUser: (userState) => dispatch(addUser(userState))
+        addUser: (userState) => dispatch(addUser(userState)),
+        handleFormChange: (formData) => dispatch(handleFormChange(formData)),
+
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Registration);

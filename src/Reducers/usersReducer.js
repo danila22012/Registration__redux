@@ -5,7 +5,7 @@ const initialState = {
 }
 
 
-export const registrationReducer = (state = initialState, action) => {
+export const usersReducer = (state = initialState, action) => {
     
     switch (action.type) {
         case "ADD_USER_FORM":

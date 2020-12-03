@@ -7,6 +7,12 @@ export const addUser = (payload) => {
     }
 }
 
+export const handleFormChange = (formData) => ({
+    type: "HANDLE_FORM_CHANGE",
+    payload: formData,
+});
+
+
 const loadJokeData = (payload) => ({
     type: "LOAD_JOKE_DATA",
     payload,

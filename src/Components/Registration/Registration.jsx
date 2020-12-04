@@ -1,38 +1,20 @@
 import React, { Component } from 'react';
-import styles from './styles.scss';
+
 import InputMask from "react-input-mask";
 import { CSSTransition } from "react-transition-group";
 
 import { connect } from "react-redux";
 
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import Switch from "@material-ui/core/Switch";
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-
+import { UserForm } from "../../Containers/UserForm/UserForm";
 import { addUser, loadJoke, handleFormChange } from '../../Action/action';
 
 
-const UserState = {
-    key: 0,
-    userName: "",
-    userGender: "",
-    userCreditCard: "",
-    withLoyaltyProgram: false,
-    userCoupon: "",
-    timeStamp: new Date(),
-
-    formToSend: true,
-    timeToSend: 300,
-}
 
 
 class Registration extends Component {
 
-    state = { ...UserState };
+
 
     componentDidMount() {
         this.props.loadJoke();
@@ -47,7 +29,7 @@ class Registration extends Component {
         this.props.handleFormChange({
             [name]: value,
         });
-        console.log(this.state);
+        console.log(this.props.userData);
 
     };
     handleSubmit = () => {
@@ -70,10 +52,10 @@ class Registration extends Component {
 
 
 
-        this.setState({ formToSend: false }) //переключаю стейт для анимации формы
+        this.props.handleFormChange({ formToSend: false }) //переключаю стейт для анимации формы
         setTimeout(() => {
-            this.setState({ formToSend: true })
-        }, this.state.timeToSend);
+            this.props.handleFormChange({ formToSend: true })
+        }, this.props.userData.timeToSend);
 
 
 
@@ -140,111 +122,25 @@ class Registration extends Component {
 
         return (
             <CSSTransition
-                in={this.state.formToSend}
-                timeout={this.state.timeToSend}
+                in={this.props.userData.formToSend}
+                timeout={this.props.userData.timeToSend}
                 mountOnEnter={true}
                 classNames='form'
                 unmountOnExit={true}
             >
 
-
-                <div>
-                    <div className="Registration-Form">
-                        <label className="Registration-Form__Item">
-                            Enter your name
-                            <InputMask
-
-                                type="text"
-                                className="Registration-Form__Input"
-                                value={this.props.userData.userName}
-                                name="userName"
-                                onChange={this.handleChange}
-                                onBlur={this.validateInput} />
-                        </label>
-
-                        <label className="Registration-Form__Item">
-                            Enter your gender
-
-                        <FormControl className={'Select-form'}>
-                                <Select
-                                    className={'Select-form__Select'}
-                                    onChange={this.handleChange}
-                                    onBlur={this.validateInput}
-                                    value={this.props.userData.userGender}
-                                    name="userGender">
-                                    <MenuItem value="0">
-                                        <em>None</em>
-                                    </MenuItem>
-                                    <MenuItem value={'Male'}>Male</MenuItem>
-                                    <MenuItem value={'Female'}>Female</MenuItem>
-
-                                </Select>
-                            </FormControl>
-                        </label>
-
-                        <label className="Registration-Form__Item">
-                            Enter your credit card
-                            <InputMask
-                                mask="9999 9999 9999 9999"
-                                className="Registration-Form__Input"
-                                type="text"
-                                value={this.props.userData.userCreditCard}
-                                name="userCreditCard"
-
-                                onChange={this.handleChange}
-                                onBlur={this.validateInput} />
-
-                        </label>
-                        <FormGroup className="Registration-Form__Item">
-                            <FormControlLabel
-
-                                label="Loyalty program"
-                                control={<Switch
-                                    color="secondary"
-                                    labelplacement="start"
-                                    onChange={this.changeSwitch}
-                                    value={this.props.userData.userCoupon}
-                                />}
-
-                            />
-                        </FormGroup>
-
-                        <CSSTransition
-                            in={this.props.userData.withLoyaltyProgram}
-                            timeout={300}
-                            mountOnEnter={true}
-                            classNames='coupon'
-                            unmountOnExit={true}
-                        >
-                            <label className="Registration-Form__Item">
-                                Coupon
-                                <input
-                                    className="Registration-Form__Input"
-                                    type="text"
-                                    value={this.props.userData.userCoupon}
-                                    name="userCoupon"
-                                    onClick={() => {
+                <UserForm
+                    joke={this.props.joke}
+                    jokeStatus={this.props.jokeStatus}
+                    userData={this.props.userData}
+                    validateInput={this.validateInput}
+                    validateSubmit={this.validateSubmit}
+                    handleChange={this.handleChange}
+                    changeSwitch = {this.changeSwitch}
 
 
-                                    }}
-                                    onChange={this.handleChange}
-                                />
-                            </label>
+                />
 
-                        </CSSTransition>
-
-                        <button className="Registration-Form__Button" onClick={this.validateSubmit}>submit </button>
-
-                    </div>
-
-
-                    {/* проверка на валидность цитати */}
-                    {this.props.jokeStatus ? <div className="Registration-Form Quote-container" display="none">
-                        <p>{this.props.joke}</p>
-                    </div> : null}
-
-
-                </div>
             </CSSTransition>
         )
     }
